@@ -22,26 +22,29 @@ print("")
 print("Let's Create a bot to attend meetings for me")
 pyttsx3.speak("Let's Create a bot to attend meetings for me")
 i = 0
+#Write the name of the browser
 browser = webdriver.Safari()
 browser.maximize_window()
 def automate(i,browser):
     if i==0:
+        #browser link to open the meeting url
         browser.get('https://sses.webex.com/meet/tc-1')
         print("Got into https://sses.webex.com/meet/tc-1")
     if i==-1:
         browser.get('https://sses.webex.com/sses/j.php?MTID=m378f1ced361dead27b31af0b04dab2e2')
         print("Got into https://sses.webex.com/sses/j.php?MTID=m378f1ced361dead27b31af0b04dab2e2")
-        #browser.get('https://sses.webex.com/sses/j.php?MTID=md013bbe77ec46f52b3777d407a2011d1')
+    #checks for the alert box
     try:
         obj = browser.switch_to.alert
         message=obj.text
         print ("Alert shows following message: "+ message )
 
         time.sleep(2)
-
+        #dismisses the alert box
         obj.dismiss()
         pyttsx3.speak("Dismissed the alert box")
         time.sleep(5)
+        #finds the button with the link to join the meeting from the browser
         button = browser.find_elements_by_tag_name('a')
         print("Buttons on start screens are " + str(len(button)))
         button[3].click()
@@ -50,22 +53,27 @@ def automate(i,browser):
         button = browser.find_elements_by_tag_name('a')
         print("Buttons on start screens are " + str(len(button)))
         button[2].click()
-    #finds the elements and clicks to open it from the browser
+
     
 
     pyttsx3.speak("Joining the meeting from the browser")
 
     time.sleep(10)
     cred = 0
-    #enter the credentials to login 
+    #enters the credentials to login 
     while True:
+      #waits for the page to load and if it fails to load, the page is refreshed
         try:
             print("Entered in credentials block")
             browser.switch_to_frame("thinIframe")
             if i == 0 or i == -1:
                 elements = browser.find_elements_by_xpath("//input[@type='text']")
+                
+                #enter your credentials down below
                 elements[0].send_keys('DHRUV D JAIN')
                 elements[1].send_keys('dhruvs@iamsizzling.com')
+                
+                
                 time.sleep(5)
             pyttsx3.speak("Credentials Entered successfully")
             browser.find_element_by_id('guest_next-btn').click()
@@ -78,9 +86,10 @@ def automate(i,browser):
             cred = cred +1
             print("Skipped Credentials block due to some error, doing it " + str(cred) + " time")
             if cred>20:
+              #page is refreshed if the page fails to load after a certain period of time
                 browser.refresh()
                 automate(-1,browser)
-    #Choose the settings and then join the meeting
+    #The bot mutes and stops the video and then joins the meeting
     browser.switch_to_frame("thinIframe")
     muteelement = browser.find_elements_by_xpath("//button[@data-doi='AUDIO:MUTE_SELF:MEETSIMPLE_INTERSTITIAL']")
     if len(muteelement) > 0 :
@@ -99,6 +108,7 @@ def automate(i,browser):
         browser.switch_to_frame("thinIframe")
         m = 0
         while True:
+          #finds the participant button
             findbutton = browser.find_elements_by_xpath("//button[@title='Participants']")
             print("Participant button is " + str(len(findbutton)))
             if m>10:
@@ -118,17 +128,20 @@ def automate(i,browser):
                     findbutton[0].click()
                     break
                 except:
+                  #if the host has not joined the meeting, the bot waits for 100 seconds before closing the browser and joining the meeting again
                     if m == 1:
                         pyttsx3.speak("The host has not joined the meeting. Waiting for host for 100 seconds")
                     time.sleep(5)
         j = 0
         k = 0
         while True:
+          #opens the participant tab and checks the number of participants
             participants = browser.find_elements_by_xpath("//span[contains(@title, 'Participants')]")
             if len(participants) > 0:
                 participanttext = participants[0].text
             else:
                 try:
+                  #if the meeting is ended abruptly a alert box pops up which signals that the meeting has ended 
                     obj = browser.switch_to.alert
                     message=obj.text
                     print ("Alert shows following message: "+ message )
@@ -136,6 +149,7 @@ def automate(i,browser):
                     obj.accept()
                     print("The meeting has ended, so closing the browser")
                     pyttsx3.speak("The meeting has ended, so closing the browser")
+                    #browser is closed and opened again to join another meeting
                     browser.close()
                     time.sleep(2)
                     browser = webdriver.Safari()
@@ -152,6 +166,7 @@ def automate(i,browser):
             start = start + 1
             num = int(participanttext[start:end])
             print(" Participants are " + str(num))
+            #the bot keeps checking the number of participants. If the participants go below a particular level, a signal is triggered which leaves the meeting and closes the browser
             if k%50 == 0:
                 pyttsx3.speak("Number of Participants are " + str(num))
             if s == 0:
@@ -196,10 +211,11 @@ def automate(i,browser):
             k = k +1
             browser.switch_to_frame("thinIframe")
     else:
+      #if the meeting has not yet started, page refreshes every 3 seconds. After a number of times, the browser automatically closes itself
         if i==0:
-            pyttsx3.speak("The meeting has not started yet, refreshing page every 300 seconds")
+            pyttsx3.speak("The meeting has not started yet, refreshing page every 3 seconds")
         else:
-            pyttsx3.speak("Refreshing the page again in 300 seconds")
+            pyttsx3.speak("Refreshing the page again in 3 seconds")
         if i >= 3000:
             pyttsx3.speak("No response from the server, so the meeting might be canceled")
             time.sleep(2)
@@ -220,9 +236,6 @@ def automate(i,browser):
 
 #schedule the meetings
 automate(-1,browser)
-"""schedule.every().tuesday.at("14:42").do(automate(0))
-while True:
-    schedule.run_pending()
-    time.sleep(1)"""
+
 
 #pipenv run python3 automatecisco.py
