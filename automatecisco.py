@@ -22,15 +22,18 @@ print("")
 print("Let's Create a bot to attend meetings for me")
 pyttsx3.speak("Let's Create a bot to attend meetings for me")
 i = 0
-#Write the name of the browser
-browser = webdriver.Safari()
+#Enter the location of driver
+driverlocation = "chromedriver.exe"
+#choose the browser
+browser = webdriver.Chrome(driverlocation)
 browser.maximize_window()
 def automate(i,browser):
     if i==0:
-        #browser link to open the meeting url
+        #browser link 1 to open the meeting url
         browser.get('https://sses.webex.com/meet/tc-1')
         print("Got into https://sses.webex.com/meet/tc-1")
     if i==-1:
+        #browser link 2 to open the meeting url
         browser.get('https://sses.webex.com/sses/j.php?MTID=m378f1ced361dead27b31af0b04dab2e2')
         print("Got into https://sses.webex.com/sses/j.php?MTID=m378f1ced361dead27b31af0b04dab2e2")
     #checks for the alert box
@@ -87,8 +90,13 @@ def automate(i,browser):
             print("Skipped Credentials block due to some error, doing it " + str(cred) + " time")
             if cred>20:
               #page is refreshed if the page fails to load after a certain period of time
-                browser.refresh()
-                automate(-1,browser)
+                time.sleep(2)
+                browser = webdriver.Chrome(driverlocation)
+                browser.maximize_window()
+                if i==-1:
+                    automate(0,browser)   
+                else:
+                    automate(-1,browser)
     #The bot mutes and stops the video and then joins the meeting
     browser.switch_to_frame("thinIframe")
     muteelement = browser.find_elements_by_xpath("//button[@data-doi='AUDIO:MUTE_SELF:MEETSIMPLE_INTERSTITIAL']")
@@ -116,7 +124,7 @@ def automate(i,browser):
                 time.sleep(3)
                 browser.close()
                 time.sleep(2)
-                browser = webdriver.Safari()
+                browser = webdriver.Chrome(driverlocation)
                 browser.maximize_window()
                 if i==-1:
                     automate(0,browser)   
@@ -152,7 +160,7 @@ def automate(i,browser):
                     #browser is closed and opened again to join another meeting
                     browser.close()
                     time.sleep(2)
-                    browser = webdriver.Safari()
+                    browser = webdriver.Chrome(driverlocation)
                     browser.maximize_window()
                     if i==-1:
                         automate(0,browser)
@@ -187,7 +195,7 @@ def automate(i,browser):
                         time.sleep(3)
                         browser.close()
                         time.sleep(2)
-                        browser = webdriver.Safari()
+                        browser = webdriver.Chrome(driverlocation)
                         browser.maximize_window()
                         if i==-1:
                             automate(0,browser)
@@ -228,9 +236,13 @@ def automate(i,browser):
         print("The page has refreshed " + str(i) + "time")
         time.sleep(3)
         browser.switch_to_default_content()
-        browser.refresh()
-        i = i + 3
-        automate(i,browser)   
+        time.sleep(2)
+        browser = webdriver.Chrome(driverlocation)
+        browser.maximize_window()
+        if i==-1:
+            automate(0,browser)   
+        else:
+            automate(-1,browser) 
 
 
 
